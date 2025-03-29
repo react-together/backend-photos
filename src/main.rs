@@ -3,14 +3,14 @@ extern crate rocket;
 
 mod middlewares;
 
-use middlewares::oidc::authorization::Token;
+use middlewares::keycloak::Token;
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use serde_json::{ Value, json };
 
 #[get("/")]
-fn index(_token: Token) -> Json<Value> {
-    Json(json!({"hello": "world", "token": _token.token}))
+fn index(token: Token) -> Json<Value> {
+    Json(json!({"hello": "world", "token": token}))
 }
 
 #[get("/heartbeat")]
