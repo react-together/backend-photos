@@ -1,5 +1,6 @@
 use core::fmt;
 
+use crate::middlewares::keycloak::jwks;
 use jsonwebtoken::{ Algorithm, DecodingKey, TokenData, Validation, decode };
 use serde::{ Deserialize, Serialize, de::DeserializeOwned };
 
@@ -47,43 +48,25 @@ fn get_issuer(
 }
 
 pub async fn parse<T: DeserializeOwned>(token: &String) -> Result<TokenData<T>, ParseError> {
-    let header = match jsonwebtoken::decode_header(&token) {
-        Ok(header) => header,
-        Err(err) => {
-            return Err(ParseError::JwtParseError(err));
-        }
-    };
+    let header = jsonwebtoken
+        ::decode_header(&token)
+        .or_else(|err| Err(ParseError::JwtParseError(err)))?;
 
-    let issuer = match get_issuer(&token, &header.alg) {
-        Ok(issuer) => issuer,
-        Err(err) => {
-            return Err(ParseError::JwtParseError(err));
-        }
-    };
+    let issuer = get_issuer(&token, &header.alg).or_else(|err|
+        Err(ParseError::JwtParseError(err))
+    )?;
 
-    let kid = match header.kid {
-        Some(kid) => kid,
-        None => {
-            return Err(ParseError::MissingIssuer);
-        }
-    };
+    let kid = header.kid.ok_or(ParseError::MissingIssuer)?;
 
-    let jwk = match crate::middlewares::keycloak::jwks::fetch_jwk(&issuer, &kid).await {
-        Ok(jwk) => jwk,
-        Err(err) => {
-            return Err(ParseError::JwkFetchError(err));
-        }
-    };
+    let jwk = jwks
+        ::fetch_jwk(&issuer, &kid).await
+        .or_else(|err| Err(ParseError::JwkFetchError(err)))?;
 
-    let decoding_key = match DecodingKey::from_jwk(&jwk) {
-        Ok(key) => key,
-        Err(err) => {
-            return Err(ParseError::JwkParseError(err));
-        }
-    };
+    let decoding_key = DecodingKey::from_jwk(&jwk).or_else(|err|
+        Err(ParseError::JwkParseError(err))
+    )?;
 
-    match jsonwebtoken::decode::<T>(&token, &decoding_key, &Validation::new(Algorithm::RS256)) {
-        Ok(token_info) => Ok(token_info),
-        Err(err) => Err(ParseError::JwtParseError(err)),
-    }
+    jsonwebtoken
+        ::decode::<T>(&token, &decoding_key, &Validation::new(Algorithm::RS256))
+        .or_else(|err| Err(ParseError::JwtParseError(err)))
 }
