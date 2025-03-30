@@ -59,7 +59,7 @@ pub async fn parse<T: DeserializeOwned>(token: &String) -> Result<TokenData<T>, 
     let kid = header.kid.ok_or(ParseError::MissingIssuer)?;
 
     let jwk = jwks
-        ::get_jwk(&issuer, &kid).await
+        ::get_jwk(&kid, &issuer).await
         .or_else(|err| Err(ParseError::JwkFetchError(err)))?;
 
     let decoding_key = DecodingKey::from_jwk(&jwk).or_else(|err|

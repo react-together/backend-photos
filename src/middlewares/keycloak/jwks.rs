@@ -4,7 +4,7 @@ use jsonwebtoken::jwk::{ Jwk, JwkSet };
 use moka::future::Cache;
 use reqwest::Client;
 
-static JWKS_CACHE: LazyLock<Cache<String, JwkSet>> = LazyLock::new(|| Cache::new(100));
+static JWK_CACHE: LazyLock<Cache<String, Jwk>> = LazyLock::new(|| Cache::new(100));
 
 async fn fetch_jwks(issuer_base_url: &str) -> Result<JwkSet, reqwest::Error> {
     let client = Client::new();
@@ -14,21 +14,26 @@ async fn fetch_jwks(issuer_base_url: &str) -> Result<JwkSet, reqwest::Error> {
     );
 
     let jwk_set = client.get(&jwks_url).send().await?.json::<JwkSet>().await?;
-    JWKS_CACHE.insert(issuer_base_url.to_string(), jwk_set.clone()).await;
+
+    // Cache each individual JWK by its kid
+    for jwk in &jwk_set.keys {
+        if let Some(kid) = &jwk.common.key_id {
+            JWK_CACHE.insert(kid.clone(), jwk.clone()).await;
+        }
+    }
 
     Ok(jwk_set)
 }
 
-pub async fn get_jwks(issuer_base_url: &str) -> Result<JwkSet, reqwest::Error> {
-    if let Some(jwk_set) = JWKS_CACHE.get(issuer_base_url).await {
-        return Ok(jwk_set);
+pub async fn get_jwk(kid: &str, issuer_base_url: &str) -> Result<Jwk, reqwest::Error> {
+    // First try to get from cache
+    if let Some(jwk) = JWK_CACHE.get(kid).await {
+        return Ok(jwk);
     }
 
-    fetch_jwks(issuer_base_url).await
-}
+    // If not in cache, fetch all JWKs and try again
+    fetch_jwks(issuer_base_url).await?;
 
-pub async fn get_jwk(issuer_base_url: &str, kid: &str) -> Result<Jwk, reqwest::Error> {
-    let jwks = get_jwks(issuer_base_url).await?;
-
-    Ok(jwks.find(kid).unwrap().clone())
+    // Now it should be in cache
+    Ok(JWK_CACHE.get(kid).await.unwrap().clone())
 }
