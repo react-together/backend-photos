@@ -1,9 +1,9 @@
 use core::fmt;
 
-use crate::{ middlewares::keycloak::jwks, persistances::config::AppConfig };
-use jsonwebtoken::{ Algorithm, DecodingKey, TokenData, Validation };
+use crate::{middlewares::keycloak::jwks, persistances::config::AppConfig};
+use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use rocket::Config;
-use serde::{ Deserialize, Serialize, de::DeserializeOwned };
+use serde::{Deserialize, Serialize, de::DeserializeOwned};
 
 #[derive(Debug)]
 pub enum ParseError {
@@ -45,7 +45,7 @@ fn get_validator(algorithm: &Algorithm) -> Validation {
 
 fn get_issuer(
     token: &String,
-    algorithm: &Algorithm
+    algorithm: &Algorithm,
 ) -> Result<String, jsonwebtoken::errors::Error> {
     let empty_key = DecodingKey::from_secret(&[]);
     let mut validation = get_validator(algorithm);
@@ -58,25 +58,21 @@ fn get_issuer(
 }
 
 pub async fn parse<T: DeserializeOwned>(token: &String) -> Result<TokenData<T>, ParseError> {
-    let header = jsonwebtoken
-        ::decode_header(&token)
-        .or_else(|err| Err(ParseError::JwtParseError(err)))?;
+    let header =
+        jsonwebtoken::decode_header(&token).or_else(|err| Err(ParseError::JwtParseError(err)))?;
 
-    let issuer = get_issuer(&token, &header.alg).or_else(|err|
-        Err(ParseError::JwtParseError(err))
-    )?;
+    let issuer =
+        get_issuer(&token, &header.alg).or_else(|err| Err(ParseError::JwtParseError(err)))?;
 
     let kid = header.kid.ok_or(ParseError::MissingIssuer)?;
 
-    let jwk = jwks
-        ::get_jwk(&kid, &issuer).await
+    let jwk = jwks::get_jwk(&kid, &issuer)
+        .await
         .or_else(|err| Err(ParseError::JwkFetchError(err)))?;
 
-    let decoding_key = DecodingKey::from_jwk(&jwk).or_else(|err|
-        Err(ParseError::JwkParseError(err))
-    )?;
+    let decoding_key =
+        DecodingKey::from_jwk(&jwk).or_else(|err| Err(ParseError::JwkParseError(err)))?;
 
-    jsonwebtoken
-        ::decode::<T>(&token, &decoding_key, &get_validator(&header.alg))
+    jsonwebtoken::decode::<T>(&token, &decoding_key, &get_validator(&header.alg))
         .or_else(|err| Err(ParseError::JwtParseError(err)))
 }

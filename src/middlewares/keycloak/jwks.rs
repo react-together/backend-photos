@@ -1,6 +1,6 @@
 use std::sync::LazyLock;
 
-use jsonwebtoken::jwk::{ Jwk, JwkSet };
+use jsonwebtoken::jwk::{Jwk, JwkSet};
 use moka::future::Cache;
 use reqwest::Client;
 

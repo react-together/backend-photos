@@ -3,8 +3,8 @@ mod jwks;
 mod jwt;
 
 use rocket::http::Status;
-use rocket::request::{ FromRequest, Outcome, Request };
-use serde::{ Deserialize, Serialize };
+use rocket::request::{FromRequest, Outcome, Request};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct Token {

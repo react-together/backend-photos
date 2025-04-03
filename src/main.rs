@@ -5,8 +5,8 @@ mod middlewares;
 mod persistances;
 
 use middlewares::keycloak::Token;
-use rocket::{ fairing::AdHoc, http::Status, serde::json::Json };
-use serde_json::{ Value, json };
+use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
+use serde_json::{Value, json};
 
 #[get("/")]
 fn index(token: Token) -> Json<Value> {
@@ -20,8 +20,7 @@ fn health_check() -> Status {
 
 #[launch]
 fn rocket() -> _ {
-    rocket
-        ::build()
+    rocket::build()
         .mount("/", routes![index, health_check])
         .attach(AdHoc::config::<persistances::config::AppConfig>())
 }
