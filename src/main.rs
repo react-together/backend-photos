@@ -2,10 +2,10 @@
 extern crate rocket;
 
 mod middlewares;
+mod persistances;
 
 use middlewares::keycloak::Token;
-use rocket::http::Status;
-use rocket::serde::json::Json;
+use rocket::{ fairing::AdHoc, http::Status, serde::json::Json };
 use serde_json::{ Value, json };
 
 #[get("/")]
@@ -20,5 +20,8 @@ fn health_check() -> Status {
 
 #[launch]
 fn rocket() -> _ {
-    rocket::build().mount("/", routes![index, health_check])
+    rocket
+        ::build()
+        .mount("/", routes![index, health_check])
+        .attach(AdHoc::config::<persistances::config::AppConfig>())
 }

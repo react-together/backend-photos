@@ -1,7 +1,8 @@
 use core::fmt;
 
-use crate::middlewares::keycloak::jwks;
-use jsonwebtoken::{ Algorithm, DecodingKey, TokenData, Validation, decode };
+use crate::{ middlewares::keycloak::jwks, persistances::config::AppConfig };
+use jsonwebtoken::{ Algorithm, DecodingKey, TokenData, Validation };
+use rocket::Config;
 use serde::{ Deserialize, Serialize, de::DeserializeOwned };
 
 #[derive(Debug)]
@@ -33,15 +34,24 @@ pub struct JwtClaims {
     // pub sid: String,
 }
 
+fn get_validator(algorithm: &Algorithm) -> Validation {
+    let mut validator = Validation::new(*algorithm);
+    let app_config = Config::figment().extract::<AppConfig>().unwrap();
+    validator.set_audience(&app_config.sso_audience);
+    validator.set_issuer(&app_config.sso_issuer);
+
+    validator
+}
+
 fn get_issuer(
     token: &String,
     algorithm: &Algorithm
 ) -> Result<String, jsonwebtoken::errors::Error> {
     let empty_key = DecodingKey::from_secret(&[]);
-    let mut validation = Validation::new(*algorithm);
+    let mut validation = get_validator(algorithm);
     validation.insecure_disable_signature_validation();
 
-    match decode::<JwtClaims>(token, &empty_key, &validation) {
+    match jsonwebtoken::decode::<JwtClaims>(token, &empty_key, &validation) {
         Ok(data) => Ok(data.claims.iss),
         Err(err) => Err(err),
     }
@@ -67,6 +77,6 @@ pub async fn parse<T: DeserializeOwned>(token: &String) -> Result<TokenData<T>, 
     )?;
 
     jsonwebtoken
-        ::decode::<T>(&token, &decoding_key, &Validation::new(Algorithm::RS256))
+        ::decode::<T>(&token, &decoding_key, &get_validator(&header.alg))
         .or_else(|err| Err(ParseError::JwtParseError(err)))
 }
