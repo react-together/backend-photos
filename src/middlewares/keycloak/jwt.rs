@@ -1,6 +1,7 @@
 use core::fmt;
 
-use crate::{middlewares::keycloak::jwks, persistances::config::AppConfig};
+use super::jwks;
+use crate::persistances::config::AppConfig;
 use jsonwebtoken::{Algorithm, DecodingKey, TokenData, Validation};
 use rocket::Config;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
