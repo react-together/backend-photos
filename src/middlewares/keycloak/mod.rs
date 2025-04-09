@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 pub struct Token {
     pub iss: String,
     pub sid: String,
+    pub sub: String,
 }
 
 #[rocket::async_trait]
