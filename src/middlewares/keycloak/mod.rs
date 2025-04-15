@@ -6,8 +6,10 @@ use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Token {
+    pub name: String,
+    pub preferred_username: String,
     pub iss: String,
     pub sid: String,
     pub sub: String,

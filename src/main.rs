@@ -8,17 +8,17 @@ use database::{
     entity::*,
     migration::{Migrator, MigratorTrait},
 };
-use middlewares::keycloak::Token;
+use middlewares::user::User;
 use persistances::db;
 use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
 use sea_orm::EntityTrait;
 use serde_json::{Value, json};
 
 #[get("/")]
-async fn index(token: Token) -> Json<Value> {
+async fn index(user: User) -> Json<Value> {
     let users = users::Entity::find().all(&**db::get()).await.unwrap();
 
-    Json(json!({"hello": "world", "users": users, "token": token}))
+    Json(json!({"hello": "world", "users": users, "user": user}))
 }
 
 #[get("/heartbeat")]
