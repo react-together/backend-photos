@@ -43,8 +43,6 @@ impl User {
         let new_user = users::ActiveModel {
             keycloak_sub: Set(token.sub.clone()),
             email: Set(token.sub.clone()), // Using sub as email for now
-            name: Set(token.name.clone()),
-            account: Set(token.preferred_username.clone()),
             ..Default::default()
         };
 
