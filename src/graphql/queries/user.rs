@@ -1,19 +1,14 @@
-use async_graphql::{Context, Object};
+use async_graphql::Object;
 use database::entity::{prelude::*, *};
 use sea_orm::{DbErr, EntityTrait};
 
 use crate::persistances::db;
 
-use super::entrypoint::QueryData;
-
-pub(crate) struct QueryRoot;
+#[derive(Default)]
+pub struct UserQuery;
 
 #[Object]
-impl QueryRoot {
-    async fn me(&self, ctx: &Context<'_>) -> Result<users::Model, async_graphql::Error> {
-        Ok(ctx.data::<QueryData>().unwrap().user.from_db.clone())
-    }
-
+impl UserQuery {
     async fn users(&self) -> Result<Vec<users::Model>, DbErr> {
         Users::find().all(&**db::get()).await
     }

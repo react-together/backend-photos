@@ -1,4 +1,4 @@
-use super::schema::QueryRoot;
+use super::queries::QueryRoot;
 use crate::middlewares::user::User;
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_rocket::*;
@@ -23,5 +23,5 @@ pub async fn graphql_request(
 }
 
 pub fn build_schema() -> SchemaType {
-    Schema::build(QueryRoot, EmptyMutation, EmptySubscription).finish()
+    Schema::build(QueryRoot::default(), EmptyMutation, EmptySubscription).finish()
 }
