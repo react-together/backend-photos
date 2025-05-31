@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate rocket;
 
+mod graphql;
 mod middlewares;
 mod persistances;
 
@@ -8,9 +9,10 @@ use database::{
     entity::*,
     migration::{Migrator, MigratorTrait},
 };
+use graphql::{entrypoint, schema::QueryRoot};
 use middlewares::user::User;
 use persistances::db;
-use rocket::{fairing::AdHoc, http::Status, serde::json::Json};
+use rocket::{Build, Rocket, fairing::AdHoc, http::Status, serde::json::Json};
 use sea_orm::EntityTrait;
 use serde_json::{Value, json};
 
@@ -27,12 +29,26 @@ fn health_check() -> Status {
 }
 
 #[launch]
-async fn rocket() -> _ {
+async fn rocket() -> Rocket<Build> {
     db::init().await;
 
     let _ = Migrator::up(&**db::get(), None).await;
 
-    rocket::build()
-        .mount("/", routes![index, health_check])
-        .attach(AdHoc::config::<persistances::config::AppConfig>())
+    let instance = rocket::build()
+        .manage(entrypoint::build_schema())
+        .mount(
+            "/",
+            routes![index, health_check, entrypoint::graphql_request],
+        )
+        .attach(AdHoc::config::<persistances::config::AppConfig>());
+
+    #[cfg(debug_assertions)]
+    {
+        instance.mount("/", routes![graphql::playground::graphql_playground])
+    }
+
+    #[cfg(not(debug_assertions))]
+    {
+        instance
+    }
 }
