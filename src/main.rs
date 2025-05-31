@@ -5,23 +5,10 @@ mod graphql;
 mod middlewares;
 mod persistances;
 
-use database::{
-    entity::*,
-    migration::{Migrator, MigratorTrait},
-};
+use database::migration::{Migrator, MigratorTrait};
 use graphql::entrypoint;
-use middlewares::user::User;
 use persistances::db;
-use rocket::{Build, Rocket, fairing::AdHoc, http::Status, serde::json::Json};
-use sea_orm::EntityTrait;
-use serde_json::{Value, json};
-
-#[get("/")]
-async fn index(user: User) -> Json<Value> {
-    let users = users::Entity::find().all(&**db::get()).await.unwrap();
-
-    Json(json!({"hello": "world", "users": users, "user": user}))
-}
+use rocket::{Build, Rocket, fairing::AdHoc, http::Status};
 
 #[get("/heartbeat")]
 fn health_check() -> Status {
@@ -36,10 +23,7 @@ async fn rocket() -> Rocket<Build> {
 
     let instance = rocket::build()
         .manage(entrypoint::build_schema())
-        .mount(
-            "/",
-            routes![index, health_check, entrypoint::graphql_request],
-        )
+        .mount("/", routes![health_check, entrypoint::graphql_request])
         .attach(AdHoc::config::<persistances::config::AppConfig>());
 
     #[cfg(debug_assertions)]
