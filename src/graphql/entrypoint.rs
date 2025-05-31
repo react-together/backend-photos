@@ -1,8 +1,8 @@
+use super::schema::QueryRoot;
+use crate::middlewares::user::User;
 use async_graphql::{EmptyMutation, EmptySubscription, Schema};
 use async_graphql_rocket::*;
 use rocket::State;
-
-use crate::{QueryRoot, middlewares::user::User};
 
 type SchemaType = Schema<QueryRoot, EmptyMutation, EmptySubscription>;
 

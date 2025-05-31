@@ -9,7 +9,7 @@ use database::{
     entity::*,
     migration::{Migrator, MigratorTrait},
 };
-use graphql::{entrypoint, schema::QueryRoot};
+use graphql::entrypoint;
 use middlewares::user::User;
 use persistances::db;
 use rocket::{Build, Rocket, fairing::AdHoc, http::Status, serde::json::Json};
