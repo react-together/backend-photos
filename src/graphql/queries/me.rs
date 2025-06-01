@@ -1,7 +1,7 @@
 use async_graphql::{Context, Object};
 
+use crate::entities::*;
 use crate::graphql::entrypoint::QueryData;
-use database::entity::*;
 
 #[derive(Default)]
 pub struct BaseQuery;

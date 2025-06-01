@@ -1,12 +1,13 @@
 #[macro_use]
 extern crate rocket;
 
+mod entities;
 mod graphql;
 mod middlewares;
 mod persistances;
 
-use database::migration::{Migrator, MigratorTrait};
 use graphql::entrypoint;
+use migration::{Migrator, MigratorTrait};
 use persistances::db;
 use rocket::{Build, Rocket, fairing::AdHoc, http::Status};
 

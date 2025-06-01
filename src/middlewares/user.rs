@@ -1,6 +1,6 @@
+use crate::entities::users;
 use crate::middlewares::keycloak::Token;
 use crate::persistances::db;
-use database::entity::users;
 use rocket::http::Status;
 use rocket::request::{FromRequest, Outcome, Request};
 use sea_orm::{ActiveModelTrait, ColumnTrait, EntityTrait, QueryFilter, Set};

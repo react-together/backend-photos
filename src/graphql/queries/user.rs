@@ -1,7 +1,7 @@
 use async_graphql::Object;
-use database::entity::{prelude::*, *};
 use sea_orm::{DbErr, EntityTrait};
 
+use crate::entities::{prelude::*, *};
 use crate::persistances::db;
 
 #[derive(Default)]
