@@ -23,7 +23,6 @@ async fn rocket() -> Rocket<Build> {
     let _ = Migrator::up(&**db::get(), None).await;
 
     let instance = rocket::build()
-        .manage(entrypoint::build_schema())
         .mount("/", routes![health_check, entrypoint::graphql_request])
         .attach(AdHoc::config::<persistances::config::AppConfig>());
 

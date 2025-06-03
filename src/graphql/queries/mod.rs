@@ -1,10 +1,7 @@
-use async_graphql::MergedObject;
+// use async_graphql::MergedObject;
 
+pub mod autoloaded_entities;
 mod me;
-mod user;
 
-use me::BaseQuery;
-use user::UserQuery;
-
-#[derive(MergedObject, Default)]
-pub struct QueryRoot(BaseQuery, UserQuery);
+// #[derive(MergedObject, Default)]
+// pub struct QueryRoot(me::BaseQuery);
