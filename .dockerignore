@@ -1,5 +1,5 @@
 *
-!database
+!migration
 !src
 !Cargo.lock
 !Cargo.toml
