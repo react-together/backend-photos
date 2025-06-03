@@ -54,3 +54,15 @@ impl Related<super::photo::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::flickr_photoset_tag::Entity")]
+    FlickrPhotosetTag,
+    #[sea_orm(entity = "super::photo_tag::Entity")]
+    PhotoTag,
+    #[sea_orm(entity = "super::flickr_photoset::Entity")]
+    FlickrPhotoset,
+    #[sea_orm(entity = "super::photo::Entity")]
+    Photo,
+}

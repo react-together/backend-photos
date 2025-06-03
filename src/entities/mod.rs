@@ -14,3 +14,18 @@ pub mod photo_tag;
 pub mod sea_orm_active_enums;
 pub mod tag;
 pub mod user;
+
+seaography::register_entity_modules!([
+    directory,
+    flickr_photo,
+    flickr_photo_size,
+    flickr_photoset,
+    flickr_photoset_tag,
+    photo,
+    photo_file,
+    photo_reaction,
+    photo_tag,
+    tag,
+    user,
+]);
+seaography::register_active_enums!([sea_orm_active_enums::TagType,]);

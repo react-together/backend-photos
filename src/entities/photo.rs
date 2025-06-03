@@ -75,3 +75,21 @@ impl Related<super::user::Entity> for Entity {
 }
 
 impl ActiveModelBehavior for ActiveModel {}
+
+#[derive(Copy, Clone, Debug, EnumIter, DeriveRelatedEntity)]
+pub enum RelatedEntity {
+    #[sea_orm(entity = "super::flickr_photo::Entity")]
+    FlickrPhoto,
+    #[sea_orm(entity = "super::photo_file::Entity")]
+    PhotoFile,
+    #[sea_orm(entity = "super::photo_reaction::Entity")]
+    PhotoReaction,
+    #[sea_orm(entity = "super::photo_tag::Entity")]
+    PhotoTag,
+    #[sea_orm(entity = "super::directory::Entity")]
+    Directory,
+    #[sea_orm(entity = "super::tag::Entity")]
+    Tag,
+    #[sea_orm(entity = "super::user::Entity")]
+    User,
+}
