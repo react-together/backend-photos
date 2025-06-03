@@ -2,15 +2,15 @@
 
 pub mod prelude;
 
-pub mod directories;
-pub mod flickr_photo_sizes;
-pub mod flickr_photos;
-pub mod flickr_photoset_tags;
-pub mod flickr_photosets;
-pub mod photo_files;
-pub mod photo_reactions;
-pub mod photo_tags;
-pub mod photos;
+pub mod directory;
+pub mod flickr_photo;
+pub mod flickr_photo_size;
+pub mod flickr_photoset;
+pub mod flickr_photoset_tag;
+pub mod photo;
+pub mod photo_file;
+pub mod photo_reaction;
+pub mod photo_tag;
 pub mod sea_orm_active_enums;
-pub mod tags;
-pub mod users;
+pub mod tag;
+pub mod user;

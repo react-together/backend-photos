@@ -1,4 +1,4 @@
-use crate::entities::users;
+use crate::entities::user;
 use crate::middlewares::keycloak::Token;
 use crate::persistances::db;
 use rocket::http::Status;
@@ -9,11 +9,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Deserialize, Debug)]
 pub struct User {
     pub from_token: Token,
-    pub from_db: users::Model,
+    pub from_db: user::Model,
 }
 
 impl User {
-    async fn find_or_create(token: &Token) -> Result<users::Model, String> {
+    async fn find_or_create(token: &Token) -> Result<user::Model, String> {
         let db = db::get();
 
         // Try to find existing user
@@ -28,9 +28,9 @@ impl User {
     async fn find_user_by_sub(
         sub: &str,
         db: &sea_orm::DatabaseConnection,
-    ) -> Result<Option<users::Model>, String> {
-        users::Entity::find()
-            .filter(users::Column::KeycloakSub.eq(sub))
+    ) -> Result<Option<user::Model>, String> {
+        user::Entity::find()
+            .filter(user::Column::KeycloakSub.eq(sub))
             .one(db)
             .await
             .map_err(|e| e.to_string())
@@ -39,8 +39,8 @@ impl User {
     async fn create_user(
         token: &Token,
         db: &sea_orm::DatabaseConnection,
-    ) -> Result<users::Model, String> {
-        let new_user = users::ActiveModel {
+    ) -> Result<user::Model, String> {
+        let new_user = user::ActiveModel {
             keycloak_sub: Set(token.sub.clone()),
             email: Set(token.sub.clone()), // Using sub as email for now
             ..Default::default()

@@ -8,7 +8,7 @@ pub struct BaseQuery;
 
 #[Object]
 impl BaseQuery {
-    async fn me(&self, ctx: &Context<'_>) -> Result<users::Model, async_graphql::Error> {
+    async fn me(&self, ctx: &Context<'_>) -> Result<user::Model, async_graphql::Error> {
         Ok(ctx.data::<QueryData>().unwrap().user.from_db.clone())
     }
 }
