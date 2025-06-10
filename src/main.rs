@@ -24,7 +24,8 @@ async fn rocket() -> Rocket<Build> {
 
     let instance = rocket::build()
         .mount("/", routes![health_check, entrypoint::graphql_request])
-        .attach(AdHoc::config::<persistances::config::AppConfig>());
+        .attach(AdHoc::config::<persistances::config::AppConfig>())
+        .attach(middlewares::cors::CORS);
 
     #[cfg(debug_assertions)]
     {
