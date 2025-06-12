@@ -23,7 +23,14 @@ async fn rocket() -> Rocket<Build> {
     let _ = Migrator::up(&**db::get(), None).await;
 
     let instance = rocket::build()
-        .mount("/", routes![health_check, entrypoint::graphql_request])
+        .mount(
+            "/",
+            routes![
+                health_check,
+                entrypoint::graphql_options,
+                entrypoint::graphql_request
+            ],
+        )
         .attach(AdHoc::config::<persistances::config::AppConfig>())
         .attach(middlewares::cors::CORS);
 
